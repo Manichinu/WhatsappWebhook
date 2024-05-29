@@ -2,10 +2,11 @@
   "name": "whatsapp-echo-webhook",
   "version": "1.0.0",
   "description": "An example WhatsApp webhook server https://developers.facebook.com/docs/whatsapp/sample-app-endpoints",
-  "main": "server.js",
+  "main": "server.ts",
   "type": "module",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.ts",
+    "build": "tsc"
   },
   "author": "WhatsApp Team",
   "license": "MIT",
@@ -14,7 +15,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
-    "nodemon": "^3.1.1"
+    "nodemon": "^3.1.1",
+    "ts-node": "^10.9.2"
   },
   "engines": {
     "node": ">=16.0.0"
