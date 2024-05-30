@@ -107,10 +107,13 @@ app.get("/webhook", (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.send(`<pre>Nothing to see here.
-Checkout README.md to start.</pre>`);
-});
+// app.get("/", (req, res) => {
+//   res.send(`<pre>Nothing to see here.
+// Checkout README.md to start.</pre>`);
+// });
+app.get('*', (req, res) => {
+  res.send("API is hosted")
+})
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port: ${PORT}`);
