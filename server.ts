@@ -39,14 +39,19 @@ app.post("/webhook", async (req, res) => {
       Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name
     }
   };
-
-  axios(postItem)
-    .then(response => {
-      console.log('Response:', response.data);
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
+  try {
+    const response = await axios(postItem);
+    console.log('Response from Azure Logic App:', response.data);
+  } catch (error) {
+    console.error('Error sending data to Azure Logic App:', error);
+  }
+  // axios(postItem)
+  //   .then(response => {
+  //     console.log('Response:', response.data);
+  //   })
+  //   .catch(error => {
+  //     console.error('Error:', error);
+  //   });
 
   // check if the incoming message contains text
   if (message?.type === "text") {
@@ -54,22 +59,7 @@ app.post("/webhook", async (req, res) => {
     const business_phone_number_id =
       req.body.entry?.[0].changes?.[0].value?.metadata?.phone_number_id;
 
-    // send a reply message as per the docs here https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages
-    // await axios({
-    //   method: "POST",
-    //   url: `https://graph.facebook.com/v18.0/${business_phone_number_id}/messages`,
-    //   headers: {
-    //     Authorization: `Bearer ${GRAPH_API_TOKEN}`,
-    //   },
-    //   data: {
-    //     messaging_product: "whatsapp",
-    //     to: message.from,
-    //     text: { body: "Echo: " + message.text.body },
-    //     context: {
-    //       message_id: message.id, // shows the message as a reply to the original user message
-    //     },
-    //   },
-    // });
+
 
     // mark incoming message as read
     await axios({
