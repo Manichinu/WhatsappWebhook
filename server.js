@@ -60,28 +60,28 @@ app.post("/webhook", function (req, res) { return __awaiter(void 0, void 0, void
                 // log incoming messages
                 console.log("Incoming webhook message:", JSON.stringify(req.body, null, 2));
                 message = (_e = (_d = (_c = (_b = (_a = req.body.entry) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.changes[0]) === null || _c === void 0 ? void 0 : _c.value) === null || _d === void 0 ? void 0 : _d.messages) === null || _e === void 0 ? void 0 : _e[0];
-                postItem = {
-                    url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
-                    method: "POST",
-                    timeout: 0,
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',
-                        "Accept": "application/json; odata=nometadata",
-                        "Content-Type": "application/json; odata=nometadata"
-                    },
-                    data: {
-                        Message: message === null || message === void 0 ? void 0 : message.text.body,
-                        Number: (_k = (_j = (_h = (_g = (_f = req.body.entry) === null || _f === void 0 ? void 0 : _f[0]) === null || _g === void 0 ? void 0 : _g.changes[0]) === null || _h === void 0 ? void 0 : _h.value) === null || _j === void 0 ? void 0 : _j.messages) === null || _k === void 0 ? void 0 : _k[0].from,
-                        Name: (_q = (_p = (_o = (_m = (_l = req.body.entry) === null || _l === void 0 ? void 0 : _l[0]) === null || _m === void 0 ? void 0 : _m.changes[0]) === null || _o === void 0 ? void 0 : _o.value) === null || _p === void 0 ? void 0 : _p.contacts) === null || _q === void 0 ? void 0 : _q[0].profile.name
-                    }
-                };
-                (0, axios_1.default)(postItem)
-                    .then(function (response) {
-                    console.log('Response:', response.data);
-                })
-                    .catch(function (error) {
-                    console.error('Error:', error);
-                });
+                // postItem = {
+                //     url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
+                //     method: "POST",
+                //     timeout: 0,
+                //     headers: {
+                //         'Access-Control-Allow-Origin': '*',
+                //         "Accept": "application/json; odata=nometadata",
+                //         "Content-Type": "application/json; odata=nometadata"
+                //     },
+                //     data: {
+                //         Message: message === null || message === void 0 ? void 0 : message.text.body,
+                //         Number: (_k = (_j = (_h = (_g = (_f = req.body.entry) === null || _f === void 0 ? void 0 : _f[0]) === null || _g === void 0 ? void 0 : _g.changes[0]) === null || _h === void 0 ? void 0 : _h.value) === null || _j === void 0 ? void 0 : _j.messages) === null || _k === void 0 ? void 0 : _k[0].from,
+                //         Name: (_q = (_p = (_o = (_m = (_l = req.body.entry) === null || _l === void 0 ? void 0 : _l[0]) === null || _m === void 0 ? void 0 : _m.changes[0]) === null || _o === void 0 ? void 0 : _o.value) === null || _p === void 0 ? void 0 : _p.contacts) === null || _q === void 0 ? void 0 : _q[0].profile.name
+                //     }
+                // };
+                // (0, axios_1.default)(postItem)
+                //     .then(function (response) {
+                //     console.log('Response:', response.data);
+                // })
+                //     .catch(function (error) {
+                //     console.error('Error:', error);
+                // });
                 if (!((message === null || message === void 0 ? void 0 : message.type) === "text")) return [3 /*break*/, 2];
                 business_phone_number_id = (_u = (_t = (_s = (_r = req.body.entry) === null || _r === void 0 ? void 0 : _r[0].changes) === null || _s === void 0 ? void 0 : _s[0].value) === null || _t === void 0 ? void 0 : _t.metadata) === null || _u === void 0 ? void 0 : _u.phone_number_id;
                 // send a reply message as per the docs here https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages
