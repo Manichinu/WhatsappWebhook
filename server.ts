@@ -17,6 +17,9 @@ app.use(express.json());
 
 const { WEBHOOK_VERIFY_TOKEN, GRAPH_API_TOKEN, PORT } = process.env;
 
+// Simple in-memory cache for processed message IDs
+const processedMessages = new Set();
+
 app.post("/webhook", async (req, res) => {
   // log incoming messages
   console.log("Incoming webhook message:", JSON.stringify(req.body, null, 2));
@@ -24,27 +27,26 @@ app.post("/webhook", async (req, res) => {
   // check if the webhook request contains a message
   // details on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   const message = req.body.entry?.[0]?.changes[0]?.value?.messages?.[0];
-  const postItem = {
-    url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
-    method: "POST",
-    timeout: 0,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      "Accept": "application/json; odata=nometadata",
-      "Content-Type": "application/json; odata=nometadata"
-    },
-    data: {
-      Message: message?.text.body,
-      Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
-      Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name
-    }
-  };
-  try {
-    const response = await axios(postItem);
-    console.log('Response from Azure Logic App:', response.data);
-  } catch (error) {
-    console.error('Error sending data to Azure Logic App:', error);
+
+  if (!message) {
+    return res.sendStatus(200);
   }
+
+  // Check if message ID is already processed
+  if (processedMessages.has(message.id)) {
+    console.log("Duplicate message detected:", message.id);
+    return res.sendStatus(200);
+  }
+
+  // Mark the message as processed
+  processedMessages.add(message.id);
+
+  // Retain only the most recent 100 message IDs
+  if (processedMessages.size > 100) {
+    const ids = Array.from(processedMessages);
+    processedMessages.delete(ids[0]);
+  }
+
   // axios(postItem)
   //   .then(response => {
   //     console.log('Response:', response.data);
@@ -59,8 +61,27 @@ app.post("/webhook", async (req, res) => {
     const business_phone_number_id =
       req.body.entry?.[0].changes?.[0].value?.metadata?.phone_number_id;
 
-
-
+    const postItem = {
+      url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
+      method: "POST",
+      timeout: 0,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        "Accept": "application/json; odata=nometadata",
+        "Content-Type": "application/json; odata=nometadata"
+      },
+      data: {
+        Message: message?.text.body,
+        Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
+        Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name
+      }
+    };
+    try {
+      const response = await axios(postItem);
+      console.log('Response from Azure Logic App:', response.data);
+    } catch (error) {
+      console.error('Error sending data to Azure Logic App:', error);
+    }
     // mark incoming message as read
     await axios({
       method: "POST",
