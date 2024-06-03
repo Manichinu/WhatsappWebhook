@@ -42,10 +42,10 @@ app.post("/webhook", async (req, res) => {
   processedMessages.add(message.id);
 
   // Retain only the most recent 100 message IDs
-  if (processedMessages.size > 100) {
-    const ids = Array.from(processedMessages);
-    processedMessages.delete(ids[0]);
-  }
+  // if (processedMessages.size > 100) {
+  //   const ids = Array.from(processedMessages);
+  //   processedMessages.delete(ids[0]);
+  // }
 
   // axios(postItem)
   //   .then(response => {
