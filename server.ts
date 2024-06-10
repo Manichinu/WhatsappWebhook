@@ -112,9 +112,28 @@ app.post("/webhook", async (req, res) => {
     });
   }
   else if (message?.type === "image") {
-    const phoneNumberId = req.body.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
     const imageId = message?.image.id;
-
+    const imageItem = {
+      url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
+      method: "POST",
+      timeout: 0,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        "Accept": "application/json; odata=nometadata",
+        "Content-Type": "application/json; odata=nometadata"
+      },
+      data: {
+        ImageURL: `https://webhook.remodigital.in/images/${imageId}`,
+        Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
+        Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name
+      }
+    };
+    try {
+      const response = await axios(imageItem);
+      console.log('Response from Azure Logic App:', response.data);
+    } catch (error) {
+      console.error('Error sending data to Azure Logic App:', error);
+    }
     try {
       // Step 1: Get the image metadata including the URL
       const imageMetaResponse = await axios({
@@ -146,27 +165,7 @@ app.post("/webhook", async (req, res) => {
       fs.writeFileSync(imagePath, imageResponse.data);
       console.log("Image response data length:", imageResponse.data.byteLength);
 
-      const imageItem = {
-        url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
-        method: "POST",
-        timeout: 0,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          "Accept": "application/json; odata=nometadata",
-          "Content-Type": "application/json; odata=nometadata"
-        },
-        data: {
-          ImageURL: `https://webhook.remodigital.in/images/${imageId}`,
-          Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
-          Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name
-        }
-      };
-      try {
-        const response = await axios(imageItem);
-        console.log('Response from Azure Logic App:', response.data);
-      } catch (error) {
-        console.error('Error sending data to Azure Logic App:', error);
-      }
+
 
       // Verify the file exists
       if (fs.existsSync(imagePath)) {
@@ -183,7 +182,6 @@ app.post("/webhook", async (req, res) => {
     }
   }
   else if (message?.type === "document") {
-    const phoneNumberId = req.body.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
     const documentId = message?.document.id;
 
     try {
