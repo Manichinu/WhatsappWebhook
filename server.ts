@@ -146,30 +146,31 @@ app.post("/webhook", async (req, res) => {
       fs.writeFileSync(imagePath, imageResponse.data);
       console.log("Image response data length:", imageResponse.data.byteLength);
 
+      const postItem = {
+        url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
+        method: "POST",
+        timeout: 0,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          "Accept": "application/json; odata=nometadata",
+          "Content-Type": "application/json; odata=nometadata"
+        },
+        data: {
+          ImageURL: `https://webhook.remodigital.in/images/${imageId}`,
+          Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
+          Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name
+        }
+      };
+      try {
+        const response = await axios(postItem);
+        console.log('Response from Azure Logic App:', response.data);
+      } catch (error) {
+        console.error('Error sending data to Azure Logic App:', error);
+      }
+
       // Verify the file exists
       if (fs.existsSync(imagePath)) {
         console.log(`Image successfully saved as ${imageId}.jpg at ${imagePath}`);
-        const postItem = {
-          url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
-          method: "POST",
-          timeout: 0,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            "Accept": "application/json; odata=nometadata",
-            "Content-Type": "application/json; odata=nometadata"
-          },
-          data: {
-            ImageURL: `https://webhook.remodigital.in/images/${imageId}`,
-            Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
-            Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name
-          }
-        };
-        try {
-          const response = await axios(postItem);
-          console.log('Response from Azure Logic App:', response.data);
-        } catch (error) {
-          console.error('Error sending data to Azure Logic App:', error);
-        }
       } else {
         console.error(`Failed to save image at ${imagePath}`);
         return res.status(500).send('Failed to save image');
@@ -213,30 +214,30 @@ app.post("/webhook", async (req, res) => {
 
       fs.writeFileSync(documentPath, documentResponse.data);
       console.log("Document response data length:", documentResponse.data.byteLength);
+      const postItem = {
+        url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
+        method: "POST",
+        timeout: 0,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          "Accept": "application/json; odata=nometadata",
+          "Content-Type": "application/json; odata=nometadata"
+        },
+        data: {
+          DocumentURL: `https://webhook.remodigital.in/documents/${documentId}.pdf`,
+          Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
+          Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name
+        }
+      };
+      try {
+        const response = await axios(postItem);
+        console.log('Response from Azure Logic App:', response.data);
+      } catch (error) {
+        console.error('Error sending data to Azure Logic App:', error);
+      }
 
       if (fs.existsSync(documentPath)) {
         console.log(`Document successfully saved as ${documentName} at ${documentPath}`);
-        const postItem = {
-          url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
-          method: "POST",
-          timeout: 0,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            "Accept": "application/json; odata=nometadata",
-            "Content-Type": "application/json; odata=nometadata"
-          },
-          data: {
-            DocumentURL: `https://webhook.remodigital.in/documents/${documentId}.pdf`,
-            Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
-            Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name
-          }
-        };
-        try {
-          const response = await axios(postItem);
-          console.log('Response from Azure Logic App:', response.data);
-        } catch (error) {
-          console.error('Error sending data to Azure Logic App:', error);
-        }
       } else {
         console.error(`Failed to save document at ${documentPath}`);
         return res.status(500).send('Failed to save document');
