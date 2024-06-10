@@ -7,7 +7,7 @@
 
 import express from "express";
 import axios from "axios";
-import fs from "fs";
+import * as fs from "fs";
 import path from "path";
 import cors from "cors";
 import dotenv from "dotenv";
