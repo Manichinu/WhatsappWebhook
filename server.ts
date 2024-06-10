@@ -70,7 +70,8 @@ app.post("/webhook", async (req, res) => {
       data: {
         Message: message?.text.body,
         Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
-        Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name
+        Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name,
+        Type: "text"
       }
     };
     try {
@@ -99,7 +100,6 @@ app.post("/webhook", async (req, res) => {
       return res.status(500).send('Error processing message');
     }
   }
-
   if (message?.type === "image") {
     const imageId = message?.image.id;
     const phoneNumberId = req.body.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
@@ -143,7 +143,8 @@ app.post("/webhook", async (req, res) => {
         data: {
           ImageURL: `https://webhook.remodigital.in/images/${imageId}`,
           Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
-          Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name
+          Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name,
+          Type: "image"
         }
       };
 
@@ -167,7 +168,6 @@ app.post("/webhook", async (req, res) => {
       return res.status(500).send('Error retrieving image');
     }
   }
-
   if (message?.type === "document") {
     const documentId = message?.document.id;
     const phoneNumberId = req.body.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
@@ -199,6 +199,29 @@ app.post("/webhook", async (req, res) => {
 
       fs.writeFileSync(documentPath, documentResponse.data);
       console.log("Document response data length:", documentResponse.data.byteLength);
+      const documentItem = {
+        url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
+        method: "POST",
+        timeout: 0,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          "Accept": "application/json; odata=nometadata",
+          "Content-Type": "application/json; odata=nometadata"
+        },
+        data: {
+          DocumentURL: `https://webhook.remodigital.in/documents/${documentName}`,
+          Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
+          Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name,
+          Type: "document"
+        }
+      };
+
+      try {
+        const response = await axios(documentItem);
+        console.log('Response from Azure Logic App:', response.data);
+      } catch (error) {
+        console.error('Error sending data to Azure Logic App:', error);
+      }
 
       if (fs.existsSync(documentPath)) {
         console.log(`Document successfully saved as ${documentName} at ${documentPath}`);
@@ -213,7 +236,6 @@ app.post("/webhook", async (req, res) => {
       return res.status(500).send('Error retrieving document');
     }
   }
-
   if (message?.type === "audio") {
     const audioId = message?.audio.id;
     const phoneNumberId = req.body.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
@@ -244,6 +266,29 @@ app.post("/webhook", async (req, res) => {
 
       fs.writeFileSync(audioPath, audioResponse.data);
       console.log("Audio response data length:", audioResponse.data.byteLength);
+      const audioItem = {
+        url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
+        method: "POST",
+        timeout: 0,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          "Accept": "application/json; odata=nometadata",
+          "Content-Type": "application/json; odata=nometadata"
+        },
+        data: {
+          AudioURL: `https://webhook.remodigital.in/audio/${audioId}`,
+          Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
+          Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name,
+          Type: "audio"
+        }
+      };
+
+      try {
+        const response = await axios(audioItem);
+        console.log('Response from Azure Logic App:', response.data);
+      } catch (error) {
+        console.error('Error sending data to Azure Logic App:', error);
+      }
 
       if (fs.existsSync(audioPath)) {
         console.log(`Audio successfully saved as ${audioId}.ogg at ${audioPath}`);
@@ -258,7 +303,6 @@ app.post("/webhook", async (req, res) => {
       return res.status(500).send('Error retrieving audio');
     }
   }
-
   if (message?.type === "video") {
     const videoId = message?.video.id;
     const phoneNumberId = req.body.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
@@ -289,6 +333,29 @@ app.post("/webhook", async (req, res) => {
 
       fs.writeFileSync(videoPath, videoResponse.data);
       console.log("Video response data length:", videoResponse.data.byteLength);
+      const videoItem = {
+        url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
+        method: "POST",
+        timeout: 0,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          "Accept": "application/json; odata=nometadata",
+          "Content-Type": "application/json; odata=nometadata"
+        },
+        data: {
+          VideoURL: `https://webhook.remodigital.in/videos/${videoId}`,
+          Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
+          Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name,
+          Type: "video"
+        }
+      };
+
+      try {
+        const response = await axios(videoItem);
+        console.log('Response from Azure Logic App:', response.data);
+      } catch (error) {
+        console.error('Error sending data to Azure Logic App:', error);
+      }
 
       if (fs.existsSync(videoPath)) {
         console.log(`Video successfully saved as ${videoId}.mp4 at ${videoPath}`);
@@ -405,9 +472,12 @@ app.get("/webhook", (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.send(`<pre>Nothing to see here. Checkout README.md to start.</pre>`);
-});
+// app.get("/", (req, res) => {
+//   res.send(`<pre>Nothing to see here. Checkout README.md to start.</pre>`);
+// });
+app.get('*', (req, res) => {
+  res.send("API is hosted")
+})
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port: ${PORT}`);
