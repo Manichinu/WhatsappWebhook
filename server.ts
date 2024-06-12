@@ -14,21 +14,21 @@ app.use(express.json());
 const { WEBHOOK_VERIFY_TOKEN, GRAPH_API_TOKEN, PORT } = process.env;
 
 // Ensure the directories exist
-const ensureDirExists = (dir: any) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
-};
+// const ensureDirExists = (dir: any) => {
+//   if (!fs.existsSync(dir)) {
+//     fs.mkdirSync(dir);
+//   }
+// };
 
-const imagesDir = path.resolve('images');
-const documentsDir = path.resolve('documents');
-const audioDir = path.resolve('audio');
-const videosDir = path.resolve('videos');
+// const imagesDir = path.resolve('images');
+// const documentsDir = path.resolve('documents');
+// const audioDir = path.resolve('audio');
+// const videosDir = path.resolve('videos');
 
-ensureDirExists(imagesDir);
-ensureDirExists(documentsDir);
-ensureDirExists(audioDir);
-ensureDirExists(videosDir);
+// ensureDirExists(imagesDir);
+// ensureDirExists(documentsDir);
+// ensureDirExists(audioDir);
+// ensureDirExists(videosDir);
 
 // Simple in-memory cache for processed message IDs
 const processedMessages = new Set();
@@ -125,10 +125,12 @@ app.post("/webhook", async (req, res) => {
         },
       });
 
-      const imagePath = path.resolve(imagesDir, `${imageId}.jpg`);
-      console.log(`Absolute path for saving image: ${imagePath}`);
+      // const imagePath = path.resolve(imagesDir, `${imageId}.jpg`);
+      // console.log(`Absolute path for saving image: ${imagePath}`);
 
-      fs.writeFileSync(imagePath, imageResponse.data);
+      // fs.writeFileSync(imagePath, imageResponse.data);
+      const imageBuffer = Buffer.from(imageResponse.data);
+      const imageBase64 = imageBuffer.toString('base64');
       console.log("Image response data length:", imageResponse.data.byteLength);
 
       const imageItem = {
@@ -141,10 +143,12 @@ app.post("/webhook", async (req, res) => {
           "Content-Type": "application/json; odata=nometadata"
         },
         data: {
-          ImageURL: `https://webhook.remodigital.in/images/${imageId}`,
+          // ImageURL: `https://webhook.remodigital.in/images/${imageId}`,
           Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
           Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name,
-          Type: "image"
+          Type: "image",
+          FileBase64: imageBase64,
+          FileName: `${imageId}.jpg`
         }
       };
 
@@ -155,12 +159,12 @@ app.post("/webhook", async (req, res) => {
         console.error('Error sending data to Azure Logic App:', error);
       }
 
-      if (fs.existsSync(imagePath)) {
-        console.log(`Image successfully saved as ${imageId}.jpg at ${imagePath}`);
-      } else {
-        console.error(`Failed to save image at ${imagePath}`);
-        return res.status(500).send('Failed to save image');
-      }
+      // if (fs.existsSync(imagePath)) {
+      //   console.log(`Image successfully saved as ${imageId}.jpg at ${imagePath}`);
+      // } else {
+      //   console.error(`Failed to save image at ${imagePath}`);
+      //   return res.status(500).send('Failed to save image');
+      // }
 
       return res.status(200).send('Image retrieved successfully');
     } catch (error: any) {
@@ -265,10 +269,12 @@ app.post("/webhook", async (req, res) => {
         },
       });
 
-      const audioPath = path.resolve(audioDir, `${audioId}.ogg`);
-      console.log(`Absolute path for saving audio: ${audioPath}`);
+      // const audioPath = path.resolve(audioDir, `${audioId}.ogg`);
+      // console.log(`Absolute path for saving audio: ${audioPath}`);
 
-      fs.writeFileSync(audioPath, audioResponse.data);
+      // fs.writeFileSync(audioPath, audioResponse.data);
+      const audioBuffer = Buffer.from(audioResponse.data);
+      const audioBase64 = audioBuffer.toString('base64');
       console.log("Audio response data length:", audioResponse.data.byteLength);
       const audioItem = {
         url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
@@ -280,10 +286,12 @@ app.post("/webhook", async (req, res) => {
           "Content-Type": "application/json; odata=nometadata"
         },
         data: {
-          AudioURL: `https://webhook.remodigital.in/audio/${audioId}`,
+          // AudioURL: `https://webhook.remodigital.in/audio/${audioId}`,
           Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
           Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name,
-          Type: "audio"
+          Type: "audio",
+          FileBase64: audioBase64,
+          FileName: `${audioId}.ogg`
         }
       };
 
@@ -294,12 +302,12 @@ app.post("/webhook", async (req, res) => {
         console.error('Error sending data to Azure Logic App:', error);
       }
 
-      if (fs.existsSync(audioPath)) {
-        console.log(`Audio successfully saved as ${audioId}.ogg at ${audioPath}`);
-      } else {
-        console.error(`Failed to save audio at ${audioPath}`);
-        return res.status(500).send('Failed to save audio');
-      }
+      // if (fs.existsSync(audioPath)) {
+      //   console.log(`Audio successfully saved as ${audioId}.ogg at ${audioPath}`);
+      // } else {
+      //   console.error(`Failed to save audio at ${audioPath}`);
+      //   return res.status(500).send('Failed to save audio');
+      // }
 
       return res.status(200).send('Audio retrieved successfully');
     } catch (error: any) {
@@ -332,10 +340,12 @@ app.post("/webhook", async (req, res) => {
         },
       });
 
-      const videoPath = path.resolve(videosDir, `${videoId}.mp4`);
-      console.log(`Absolute path for saving video: ${videoPath}`);
+      // const videoPath = path.resolve(videosDir, `${videoId}.mp4`);
+      // console.log(`Absolute path for saving video: ${videoPath}`);
 
-      fs.writeFileSync(videoPath, videoResponse.data);
+      // fs.writeFileSync(videoPath, videoResponse.data);
+      const videoBuffer = Buffer.from(videoResponse.data);
+      const videoBase64 = videoBuffer.toString('base64');
       console.log("Video response data length:", videoResponse.data.byteLength);
       const videoItem = {
         url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
@@ -347,10 +357,12 @@ app.post("/webhook", async (req, res) => {
           "Content-Type": "application/json; odata=nometadata"
         },
         data: {
-          VideoURL: `https://webhook.remodigital.in/videos/${videoId}`,
+          // VideoURL: `https://webhook.remodigital.in/videos/${videoId}`,
           Number: req.body.entry?.[0]?.changes[0]?.value?.messages?.[0].from,
           Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name,
-          Type: "video"
+          Type: "video",
+          FileBase64: videoBase64,
+          FileName: `${videoId}.mp4`
         }
       };
 
@@ -361,12 +373,12 @@ app.post("/webhook", async (req, res) => {
         console.error('Error sending data to Azure Logic App:', error);
       }
 
-      if (fs.existsSync(videoPath)) {
-        console.log(`Video successfully saved as ${videoId}.mp4 at ${videoPath}`);
-      } else {
-        console.error(`Failed to save video at ${videoPath}`);
-        return res.status(500).send('Failed to save video');
-      }
+      // if (fs.existsSync(videoPath)) {
+      //   console.log(`Video successfully saved as ${videoId}.mp4 at ${videoPath}`);
+      // } else {
+      //   console.error(`Failed to save video at ${videoPath}`);
+      //   return res.status(500).send('Failed to save video');
+      // }
 
       return res.status(200).send('Video retrieved successfully');
     } catch (error: any) {
@@ -378,89 +390,86 @@ app.post("/webhook", async (req, res) => {
   res.sendStatus(200);
 });
 
-app.get('/images/:mediaId', (req, res) => {
-  const mediaId = req.params.mediaId;
-  const imagePath = path.resolve(imagesDir, `${mediaId}.jpg`);
+// app.get('/images/:mediaId', (req, res) => {
+//   const mediaId = req.params.mediaId;
+//   const imagePath = path.resolve(imagesDir, `${mediaId}.jpg`);
 
-  console.log('Request for image with mediaId:', mediaId);
-  console.log('Looking for image at path:', imagePath);
+//   console.log('Request for image with mediaId:', mediaId);
+//   console.log('Looking for image at path:', imagePath);
 
-  if (fs.existsSync(imagePath)) {
-    console.log(`Serving image from path: ${imagePath}`);
-    res.sendFile(imagePath, { headers: { 'Content-Type': 'image/jpeg' } }, (err: any) => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(err.status).end();
-      }
-    });
-  } else {
-    console.error('Image not found at path:', imagePath);
-    res.status(404).send('Image not found');
-  }
-});
+//   if (fs.existsSync(imagePath)) {
+//     console.log(`Serving image from path: ${imagePath}`);
+//     res.sendFile(imagePath, { headers: { 'Content-Type': 'image/jpeg' } }, (err: any) => {
+//       if (err) {
+//         console.error('Error sending file:', err);
+//         res.status(err.status).end();
+//       }
+//     });
+//   } else {
+//     console.error('Image not found at path:', imagePath);
+//     res.status(404).send('Image not found');
+//   }
+// });
+// app.get('/documents/:documentName', (req, res) => {
+//   const documentName = req.params.documentName;
+//   const documentPath = path.resolve(documentsDir, documentName);
 
-app.get('/documents/:documentName', (req, res) => {
-  const documentName = req.params.documentName;
-  const documentPath = path.resolve(documentsDir, documentName);
+//   console.log('Request for document with name:', documentName);
+//   console.log('Looking for document at path:', documentPath);
 
-  console.log('Request for document with name:', documentName);
-  console.log('Looking for document at path:', documentPath);
+//   if (fs.existsSync(documentPath)) {
+//     console.log(`Serving document from path: ${documentPath}`);
+//     res.sendFile(documentPath, (err: any) => {
+//       if (err) {
+//         console.error('Error sending file:', err);
+//         res.status(err.status).end();
+//       }
+//     });
+//   } else {
+//     console.error('Document not found at path:', documentPath);
+//     res.status(404).send('Document not found');
+//   }
+// });
+// app.get('/audio/:audioId', (req, res) => {
+//   const audioId = req.params.audioId;
+//   const audioPath = path.resolve(audioDir, `${audioId}.ogg`);
 
-  if (fs.existsSync(documentPath)) {
-    console.log(`Serving document from path: ${documentPath}`);
-    res.sendFile(documentPath, (err: any) => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(err.status).end();
-      }
-    });
-  } else {
-    console.error('Document not found at path:', documentPath);
-    res.status(404).send('Document not found');
-  }
-});
+//   console.log('Request for audio with audioId:', audioId);
+//   console.log('Looking for audio at path:', audioPath);
 
-app.get('/audio/:audioId', (req, res) => {
-  const audioId = req.params.audioId;
-  const audioPath = path.resolve(audioDir, `${audioId}.ogg`);
+//   if (fs.existsSync(audioPath)) {
+//     console.log(`Serving audio from path: ${audioPath}`);
+//     res.sendFile(audioPath, { headers: { 'Content-Type': 'audio/ogg' } }, (err: any) => {
+//       if (err) {
+//         console.error('Error sending file:', err);
+//         res.status(err.status).end();
+//       }
+//     });
+//   } else {
+//     console.error('Audio not found at path:', audioPath);
+//     res.status(404).send('Audio not found');
+//   }
+// });
+// app.get('/videos/:videoId', (req, res) => {
+//   const videoId = req.params.videoId;
+//   const videoPath = path.resolve(videosDir, `${videoId}.mp4`);
 
-  console.log('Request for audio with audioId:', audioId);
-  console.log('Looking for audio at path:', audioPath);
+//   console.log('Request for video with videoId:', videoId);
+//   console.log('Looking for video at path:', videoPath);
 
-  if (fs.existsSync(audioPath)) {
-    console.log(`Serving audio from path: ${audioPath}`);
-    res.sendFile(audioPath, { headers: { 'Content-Type': 'audio/ogg' } }, (err: any) => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(err.status).end();
-      }
-    });
-  } else {
-    console.error('Audio not found at path:', audioPath);
-    res.status(404).send('Audio not found');
-  }
-});
-
-app.get('/videos/:videoId', (req, res) => {
-  const videoId = req.params.videoId;
-  const videoPath = path.resolve(videosDir, `${videoId}.mp4`);
-
-  console.log('Request for video with videoId:', videoId);
-  console.log('Looking for video at path:', videoPath);
-
-  if (fs.existsSync(videoPath)) {
-    console.log(`Serving video from path: ${videoPath}`);
-    res.sendFile(videoPath, { headers: { 'Content-Type': 'video/mp4' } }, (err: any) => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(err.status).end();
-      }
-    });
-  } else {
-    console.error('Video not found at path:', videoPath);
-    res.status(404).send('Video not found');
-  }
-});
+//   if (fs.existsSync(videoPath)) {
+//     console.log(`Serving video from path: ${videoPath}`);
+//     res.sendFile(videoPath, { headers: { 'Content-Type': 'video/mp4' } }, (err: any) => {
+//       if (err) {
+//         console.error('Error sending file:', err);
+//         res.status(err.status).end();
+//       }
+//     });
+//   } else {
+//     console.error('Video not found at path:', videoPath);
+//     res.status(404).send('Video not found');
+//   }
+// });
 
 // Webhook verification
 app.get("/webhook", (req, res) => {
