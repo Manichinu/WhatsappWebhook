@@ -37,6 +37,8 @@ app.post("/webhook", async (req, res) => {
   console.log("Incoming webhook message:", JSON.stringify(req.body, null, 2));
 
   const message = req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+  const businessPhoneNumberId = req.body.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
+
   if (!message) {
     return res.sendStatus(200);
   }
@@ -57,7 +59,6 @@ app.post("/webhook", async (req, res) => {
   // }
 
   if (message?.type === "text") {
-    const businessPhoneNumberId = req.body.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
     const postItem = {
       url: "https://prod-134.westus.logic.azure.com:443/workflows/54a65ff633684999b86c7d2067a4ed82/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KNvJymBCdH3oU-BzKHvXT3BXmWju_IzMyCNkCevuEwE",
       method: "POST",
@@ -79,25 +80,6 @@ app.post("/webhook", async (req, res) => {
       console.log('Response from Azure Logic App:', response.data);
     } catch (error) {
       console.error('Error sending data to Azure Logic App:', error);
-    }
-    try {
-      await axios({
-        method: "POST",
-        url: `https://graph.facebook.com/v18.0/${businessPhoneNumberId}/messages`,
-        headers: {
-          Authorization: `Bearer ${GRAPH_API_TOKEN}`,
-        },
-        data: {
-          messaging_product: "whatsapp",
-          status: "read",
-          message_id: message.id,
-        },
-      });
-
-      return res.sendStatus(200);
-    } catch (error: any) {
-      console.error('Error marking message as read:', error.response ? error.response.data : error.message);
-      return res.status(500).send('Error processing message');
     }
   }
   if (message?.type === "image") {
@@ -386,6 +368,25 @@ app.post("/webhook", async (req, res) => {
       console.error('Error retrieving video:', error.response ? error.response.data : error.message);
       return res.status(500).send('Error retrieving video');
     }
+  }
+  try {
+    await axios({
+      method: "POST",
+      url: `https://graph.facebook.com/v18.0/${businessPhoneNumberId}/messages`,
+      headers: {
+        Authorization: `Bearer ${GRAPH_API_TOKEN}`,
+      },
+      data: {
+        messaging_product: "whatsapp",
+        status: "read",
+        message_id: message.id,
+      },
+    });
+
+    return res.sendStatus(200);
+  } catch (error: any) {
+    console.error('Error marking message as read:', error.response ? error.response.data : error.message);
+    return res.status(500).send('Error processing message');
   }
 
   res.sendStatus(200);
