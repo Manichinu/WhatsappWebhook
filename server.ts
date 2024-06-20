@@ -103,7 +103,7 @@ app.post("/webhook", async (req, res) => {
   if (message?.type === "image") {
     const imageId = message?.image.id;
     const phoneNumberId = req.body.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
-
+    const Caption = message.image.caption == undefined ? "" : message.image.caption;
     try {
       const imageMetaResponse = await axios({
         url: `https://graph.facebook.com/v13.0/${imageId}`,
@@ -148,7 +148,8 @@ app.post("/webhook", async (req, res) => {
           Name: req.body.entry?.[0]?.changes[0]?.value?.contacts?.[0].profile.name,
           Type: "image",
           FileBase64: imageBase64,
-          FileName: `${imageId}.jpg`
+          FileName: `${imageId}.jpg`,
+          Message: Caption,
         }
       };
 
