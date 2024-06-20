@@ -383,7 +383,7 @@ app.post("/webhook", async (req, res) => {
       },
     });
 
-    return res.sendStatus(200);
+    // return res.sendStatus(200);
   } catch (error: any) {
     console.error('Error marking message as read:', error.response ? error.response.data : error.message);
     return res.status(500).send('Error processing message');
